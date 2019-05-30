@@ -1,8 +1,0 @@
-- [Configuration](configuration.md)
-- [Session Management](session-management.md)
-- [Multiple User Types](multiple-user-types.md)
-- [Routing](routing.md)
-- [Service Methods](service-methods.md)
-- [Common Problems](common-problems.md)
-- [Contribute](contribute.md)
-- [Migrate to Angular-Token 7.x](migrate-to-7.md)

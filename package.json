@@ -1,57 +1,44 @@
 {
-  "name": "angular-token-app",
-  "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e",
-    "build:lib": "ng build --prod angular-token && cp README.md dist/angular-token",
-    "test:lib": "ng test angular-token"
+  "name": "angular-token",
+  "version": "7.1.0-rc.0",
+  "repository": "https://github.com/neroniaky/angular-token.git",
+  "author": {
+    "name": "Jan-Philipp Riethmacher",
+    "email": "neroniaky@gmail.com",
+    "url": "https://github.com/neroniaky"
   },
-  "private": true,
+  "contributors": [
+    {
+      "name": "Arjen Brandenburgh",
+      "email": "mail@arjenbrandenburgh.nl",
+      "url": "https://github.com/arjenbrandenburgh"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/neroniaky/angular-token/issues"
+  },
+  "homepage": "https://github.com/neroniaky/angular-token#readme",
+  "keywords": [
+    "angular",
+    "devise token auth",
+    "token authentication"
+  ],
+  "peerDependencies": {
+    "@angular/common": "^7.0.0",
+    "@angular/core": "^7.0.0"
+  },
+  "main": "bundles/angular-token.umd.js",
+  "module": "fesm5/angular-token.js",
+  "es2015": "fesm2015/angular-token.js",
+  "esm5": "esm5/angular-token.js",
+  "esm2015": "esm2015/angular-token.js",
+  "fesm5": "fesm5/angular-token.js",
+  "fesm2015": "fesm2015/angular-token.js",
+  "typings": "angular-token.d.ts",
+  "metadata": "angular-token.metadata.json",
+  "sideEffects": false,
   "dependencies": {
-    "@angular/animations": "7.2.8",
-    "@angular/cdk": "7.3.4",
-    "@angular/common": "7.2.8",
-    "@angular/compiler": "7.2.8",
-    "@angular/core": "7.2.8",
-    "@angular/forms": "7.2.8",
-    "@angular/http": "7.2.8",
-    "@angular/material": "7.3.4",
-    "@angular/platform-browser": "7.2.8",
-    "@angular/platform-browser-dynamic": "7.2.8",
-    "@angular/router": "7.2.8",
-    "bootstrap": "4.3.1",
-    "core-js": "2.6.5",
-    "rxjs": "6.4.0",
-    "tslib": "1.9.3",
-    "zone.js": "0.8.29"
-  },
-  "devDependencies": {
-    "@angular-devkit/build-angular": "0.13.5",
-    "@angular-devkit/build-ng-packagr": "0.13.5",
-    "@angular/cli": "7.3.5",
-    "@angular/compiler-cli": "7.2.8",
-    "@angular/language-service": "7.2.8",
-    "@types/node": "10.12.19",
-    "@types/jasmine": "3.3.9",
-    "@types/jasminewd2": "2.0.6",
-    "codelyzer": "4.5.0",
-    "jasmine-core": "3.3.0",
-    "jasmine-spec-reporter": "4.2.1",
-    "karma": "4.0.1",
-    "karma-chrome-launcher": "2.2.0",
-    "karma-coverage-istanbul-reporter": "2.0.5",
-    "karma-jasmine": "2.0.1",
-    "karma-jasmine-html-reporter": "1.4.0",
-    "ng-packagr": "4.7.1",
-    "protractor": "5.4.2",
-    "ts-node": "8.0.3",
-    "tsickle": "0.34.0",
-    "tslint": "5.13.1",
-    "typescript": "3.2.4"
+    "tslib": "^1.9.0"
   }
 }
