@@ -1,6 +1,6 @@
 import { Injectable, Optional, Inject, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { isPlatformServer } from '@angular/common';
 
 import { Observable, fromEvent, interval, BehaviorSubject } from 'rxjs';
@@ -516,18 +516,23 @@ export class AngularTokenService implements CanActivate {
      }
 
      // Try to get auth data from params obj.
-     public getAuthDataFromParamsObj(queryParams: any): void {
-       const authData: AuthData = {
-         accessToken:    queryParams['token'] || queryParams['auth_token'],
-         client:         queryParams['client_id'],
-         expiry:         queryParams['expiry'],
-         tokenType:      'Bearer',
-         uid:            queryParams['uid']
-       };
+     public getAuthDataFromParamsObj(queryParams: any): Promise<any> {
+       return new Promise<any>((resolve, reject) => {
+         const authData: AuthData = {
+           accessToken:    queryParams['token'] || queryParams['auth_token'],
+           client:         queryParams['client_id'],
+           expiry:         queryParams['expiry'],
+           tokenType:      'Bearer',
+           uid:            queryParams['uid']
+         };
 
-       if (this.checkAuthData(authData)) {
-         this.authData.next(authData);
-       }
+         if (this.checkAuthData(authData)) {
+           this.authData.next(authData);
+           resolve(authData);
+         } else {
+           reject(authData);
+         } 
+       })
      }
 
   /**
