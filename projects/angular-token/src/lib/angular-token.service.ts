@@ -1,6 +1,6 @@
 import { Injectable, Optional, Inject, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { HttpClient, HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { isPlatformServer } from '@angular/common';
 
 import { Observable, fromEvent, interval, BehaviorSubject } from 'rxjs';
@@ -13,6 +13,7 @@ import {
   RegisterData,
   UpdatePasswordData,
   ResetPasswordData,
+  ChangePasswordData,
 
   UserType,
   UserData,
@@ -110,6 +111,7 @@ export class AngularTokenService implements CanActivate {
       registerAccountCallback:    this.global.location.href,
 
       updatePasswordPath:         'auth',
+      changePasswordPath:         'auth/password',
 
       resetPasswordPath:          'auth/password',
       resetPasswordCallback:      this.global.location.href,
@@ -348,10 +350,26 @@ export class AngularTokenService implements CanActivate {
 
     const body = {
       [this.options.loginField]: resetPasswordData.login,
-      redirect_url: this.options.resetPasswordCallback
+      redirect_url: resetPasswordData.redirectUrl
     };
 
     return this.http.post<ApiResponse>(this.getServerPath() + this.options.resetPasswordPath, body);
+  }
+
+  // Change password request
+  changePassword(changePasswordData: ChangePasswordData): Observable<ApiResponse> {
+
+    const body = {
+      password: changePasswordData.password,
+      password_confirmation: changePasswordData.passwordConfirmation
+    };
+
+    // const headers: HttpHeaders = new HttpHeaders();
+    // headers.append('uid', this.currentAuthData.uid);
+    // headers.append('client', this.currentAuthData.client);
+    // headers.append('access-token', this.currentAuthData.accessToken);
+
+    return this.http.put<ApiResponse>(this.getServerPath() + this.options.changePasswordPath, body);
   }
 
 
@@ -361,53 +379,53 @@ export class AngularTokenService implements CanActivate {
    *
    */
 
-  private getUserPath(): string {
-    return (this.userType.value == null) ? '' : this.userType.value.path + '/';
-  }
+   private getUserPath(): string {
+     return (this.userType.value == null) ? '' : this.userType.value.path + '/';
+   }
 
-  private getApiPath(): string {
-    let constructedPath = '';
+   private getApiPath(): string {
+     let constructedPath = '';
 
-    if (this.options.apiBase != null) {
-      constructedPath += this.options.apiBase + '/';
-    }
+     if (this.options.apiBase != null) {
+       constructedPath += this.options.apiBase + '/';
+     }
 
-    if (this.options.apiPath != null) {
-      constructedPath += this.options.apiPath + '/';
-    }
+     if (this.options.apiPath != null) {
+       constructedPath += this.options.apiPath + '/';
+     }
 
-    return constructedPath;
-  }
+     return constructedPath;
+   }
 
-  private getServerPath(): string {
-    return this.getApiPath() + this.getUserPath();
-  }
+   private getServerPath(): string {
+     return this.getApiPath() + this.getUserPath();
+   }
 
-  private getOAuthPath(oAuthType: string): string {
-    let oAuthPath: string;
+   private getOAuthPath(oAuthType: string): string {
+     let oAuthPath: string;
 
-    oAuthPath = this.options.oAuthPaths[oAuthType];
+     oAuthPath = this.options.oAuthPaths[oAuthType];
 
-    if (oAuthPath == null) {
-      oAuthPath = `/auth/${oAuthType}`;
-    }
+     if (oAuthPath == null) {
+       oAuthPath = `/auth/${oAuthType}`;
+     }
 
-    return oAuthPath;
-  }
+     return oAuthPath;
+   }
 
-  private getOAuthUrl(oAuthPath: string, callbackUrl: string, windowType: string): string {
-    let url: string;
+   private getOAuthUrl(oAuthPath: string, callbackUrl: string, windowType: string): string {
+     let url: string;
 
-    url =   `${this.options.oAuthBase}/${oAuthPath}`;
-    url +=  `?omniauth_window_type=${windowType}`;
-    url +=  `&auth_origin_url=${encodeURIComponent(callbackUrl)}`;
+     url =   `${this.options.oAuthBase}/${oAuthPath}`;
+     url +=  `?omniauth_window_type=${windowType}`;
+     url +=  `&auth_origin_url=${encodeURIComponent(callbackUrl)}`;
 
-    if (this.userType.value != null) {
-      url += `&resource_class=${this.userType.value.name}`;
-    }
+     if (this.userType.value != null) {
+       url += `&resource_class=${this.userType.value.name}`;
+     }
 
-    return url;
-  }
+     return url;
+   }
 
 
   /**
@@ -416,86 +434,101 @@ export class AngularTokenService implements CanActivate {
    *
    */
 
-  // Try to load auth data
-  private tryLoadAuthData(): void {
+   // Try to load auth data
+   private tryLoadAuthData(): void {
 
-    const userType = this.getUserTypeByName(this.localStorage.getItem('userType'));
+     const userType = this.getUserTypeByName(this.localStorage.getItem('userType'));
 
-    if (userType) {
-      this.userType.next(userType);
-    }
+     if (userType) {
+       this.userType.next(userType);
+     }
 
-    this.getAuthDataFromStorage();
+     this.getAuthDataFromStorage();
 
-    if (this.activatedRoute) {
-      this.getAuthDataFromParams();
-    }
+     if (this.activatedRoute) {
+       this.getAuthDataFromParams();
+     }
 
-    // if (this.authData) {
-    //     this.validateToken();
-    // }
-  }
+     // if (this.authData) {
+       //     this.validateToken();
+       // }
+     }
 
-  // Parse Auth data from response
-  public getAuthHeadersFromResponse(data: HttpResponse<any> | HttpErrorResponse): void {
-    const headers = data.headers;
+     // Parse Auth data from response
+     public getAuthHeadersFromResponse(data: HttpResponse<any> | HttpErrorResponse): void {
+       const headers = data.headers;
 
-    const authData: AuthData = {
-      accessToken:    headers.get('access-token'),
-      client:         headers.get('client'),
-      expiry:         headers.get('expiry'),
-      tokenType:      headers.get('token-type'),
-      uid:            headers.get('uid')
-    };
+       const authData: AuthData = {
+         accessToken:    headers.get('access-token'),
+         client:         headers.get('client'),
+         expiry:         headers.get('expiry'),
+         tokenType:      headers.get('token-type'),
+         uid:            headers.get('uid')
+       };
 
-    this.setAuthData(authData);
-  }
+       this.setAuthData(authData);
+     }
 
-  // Parse Auth data from post message
-  private getAuthDataFromPostMessage(data: any): void {
-    const authData: AuthData = {
-      accessToken:    data['auth_token'],
-      client:         data['client_id'],
-      expiry:         data['expiry'],
-      tokenType:      'Bearer',
-      uid:            data['uid']
-    };
+     // Parse Auth data from post message
+     private getAuthDataFromPostMessage(data: any): void {
+       const authData: AuthData = {
+         accessToken:    data['auth_token'],
+         client:         data['client_id'],
+         expiry:         data['expiry'],
+         tokenType:      'Bearer',
+         uid:            data['uid']
+       };
 
-    this.setAuthData(authData);
-  }
+       this.setAuthData(authData);
+     }
 
-  // Try to get auth data from storage.
-  public getAuthDataFromStorage(): void {
+     // Try to get auth data from storage.
+     public getAuthDataFromStorage(): void {
 
-    const authData: AuthData = {
-      accessToken:    this.localStorage.getItem('accessToken'),
-      client:         this.localStorage.getItem('client'),
-      expiry:         this.localStorage.getItem('expiry'),
-      tokenType:      this.localStorage.getItem('tokenType'),
-      uid:            this.localStorage.getItem('uid')
-    };
+       const authData: AuthData = {
+         accessToken:    this.localStorage.getItem('accessToken'),
+         client:         this.localStorage.getItem('client'),
+         expiry:         this.localStorage.getItem('expiry'),
+         tokenType:      this.localStorage.getItem('tokenType'),
+         uid:            this.localStorage.getItem('uid')
+       };
 
-    if (this.checkAuthData(authData)) {
-      this.authData.next(authData);
-    }
-  }
+       if (this.checkAuthData(authData)) {
+         this.authData.next(authData);
+       }
+     }
 
-  // Try to get auth data from url parameters.
-  private getAuthDataFromParams(): void {
-    this.activatedRoute.queryParams.subscribe(queryParams => {
-      const authData: AuthData = {
-        accessToken:    queryParams['token'] || queryParams['auth_token'],
-        client:         queryParams['client_id'],
-        expiry:         queryParams['expiry'],
-        tokenType:      'Bearer',
-        uid:            queryParams['uid']
-      };
+     // Try to get auth data from url parameters.
+     private getAuthDataFromParams(): void {
+       this.activatedRoute.queryParams.subscribe(queryParams => {
+         const authData: AuthData = {
+           accessToken:    queryParams['token'] || queryParams['auth_token'],
+           client:         queryParams['client_id'],
+           expiry:         queryParams['expiry'],
+           tokenType:      'Bearer',
+           uid:            queryParams['uid']
+         };
 
-      if (this.checkAuthData(authData)) {
-        this.authData.next(authData);
-      }
-    });
-  }
+         if (this.checkAuthData(authData)) {
+           this.authData.next(authData);
+         }
+       });
+     }
+
+     // Try to get auth data from params obj.
+     public getAuthDataFromParamsObj(queryParams: any): void {
+       const authData: AuthData = {
+         accessToken:    queryParams['token'] || queryParams['auth_token'],
+         client:         queryParams['client_id'],
+         expiry:         queryParams['expiry'],
+         tokenType:      'Bearer',
+         uid:            queryParams['uid']
+       };
+
+       if (this.checkAuthData(authData)) {
+         this.authData.next(authData);
+       }
+     }
 
   /**
    *
@@ -503,24 +536,24 @@ export class AngularTokenService implements CanActivate {
    *
    */
 
-  // Write auth data to storage
-  private setAuthData(authData: AuthData): void {
-    if (this.checkAuthData(authData)) {
+   // Write auth data to storage
+   private setAuthData(authData: AuthData): void {
+     if (this.checkAuthData(authData)) {
 
-      this.authData.next(authData);
+       this.authData.next(authData);
 
-      this.localStorage.setItem('accessToken', authData.accessToken);
-      this.localStorage.setItem('client', authData.client);
-      this.localStorage.setItem('expiry', authData.expiry);
-      this.localStorage.setItem('tokenType', authData.tokenType);
-      this.localStorage.setItem('uid', authData.uid);
+       this.localStorage.setItem('accessToken', authData.accessToken);
+       this.localStorage.setItem('client', authData.client);
+       this.localStorage.setItem('expiry', authData.expiry);
+       this.localStorage.setItem('tokenType', authData.tokenType);
+       this.localStorage.setItem('uid', authData.uid);
 
-      if (this.userType.value != null) {
-        this.localStorage.setItem('userType', this.userType.value.name);
-      }
+       if (this.userType.value != null) {
+         this.localStorage.setItem('userType', this.userType.value.name);
+       }
 
-    }
-  }
+     }
+   }
 
 
   /**
@@ -529,23 +562,23 @@ export class AngularTokenService implements CanActivate {
    *
    */
 
-  // Check if auth data complete and if response token is newer
-  private checkAuthData(authData: AuthData): boolean {
+   // Check if auth data complete and if response token is newer
+   private checkAuthData(authData: AuthData): boolean {
 
-    if (
-      authData.accessToken != null &&
-      authData.client != null &&
-      authData.expiry != null &&
-      authData.tokenType != null &&
-      authData.uid != null
-    ) {
-      if (this.authData.value != null) {
-        return authData.expiry >= this.authData.value.expiry;
-      }
-      return true;
-    }
-    return false;
-  }
+     if (
+       authData.accessToken != null &&
+       authData.client != null &&
+       authData.expiry != null &&
+       authData.tokenType != null &&
+       authData.uid != null
+       ) {
+       if (this.authData.value != null) {
+         return authData.expiry >= this.authData.value.expiry;
+       }
+       return true;
+     }
+     return false;
+   }
 
 
   /**
@@ -554,34 +587,34 @@ export class AngularTokenService implements CanActivate {
    *
    */
 
-  private requestCredentialsViaPostMessage(authWindow: any): Observable<any> {
-    const pollerObserv = interval(500);
+   private requestCredentialsViaPostMessage(authWindow: any): Observable<any> {
+     const pollerObserv = interval(500);
 
-    const responseObserv = fromEvent(this.global, 'message').pipe(
-      pluck('data'),
-      filter(this.oAuthWindowResponseFilter)
-    );
+     const responseObserv = fromEvent(this.global, 'message').pipe(
+       pluck('data'),
+       filter(this.oAuthWindowResponseFilter)
+       );
 
-    responseObserv.subscribe(
-      this.getAuthDataFromPostMessage.bind(this)
-    );
+     responseObserv.subscribe(
+       this.getAuthDataFromPostMessage.bind(this)
+       );
 
-    const pollerSubscription = pollerObserv.subscribe(() => {
-      if (authWindow.closed) {
-        pollerSubscription.unsubscribe();
-      } else {
-        authWindow.postMessage('requestCredentials', '*');
-      }
-    });
+     const pollerSubscription = pollerObserv.subscribe(() => {
+       if (authWindow.closed) {
+         pollerSubscription.unsubscribe();
+       } else {
+         authWindow.postMessage('requestCredentials', '*');
+       }
+     });
 
-    return responseObserv;
-  }
+     return responseObserv;
+   }
 
-  private oAuthWindowResponseFilter(data: any): any {
-    if (data.message === 'deliverCredentials' || data.message === 'authFailure') {
-      return data;
-    }
-  }
+   private oAuthWindowResponseFilter(data: any): any {
+     if (data.message === 'deliverCredentials' || data.message === 'authFailure') {
+       return data;
+     }
+   }
 
 
   /**
@@ -590,14 +623,14 @@ export class AngularTokenService implements CanActivate {
    *
    */
 
-  // Match user config by user config name
-  private getUserTypeByName(name: string): UserType {
-    if (name == null || this.options.userTypes == null) {
-      return null;
-    }
+   // Match user config by user config name
+   private getUserTypeByName(name: string): UserType {
+     if (name == null || this.options.userTypes == null) {
+       return null;
+     }
 
-    return this.options.userTypes.find(
-      userType => userType.name === name
-    );
-  }
-}
+     return this.options.userTypes.find(
+       userType => userType.name === name
+       );
+   }
+ }

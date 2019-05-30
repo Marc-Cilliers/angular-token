@@ -121,6 +121,7 @@ describe('AngularTokenService', () => {
   // Reset password data
   const resetPasswordData: ResetPasswordData = {
     login: 'test@test.de',
+    redirectUrl: 'http://localhost:9876/context.html'
   };
 
   const resetPasswordDataOutput = {
@@ -358,6 +359,7 @@ describe('AngularTokenService', () => {
         validateTokenPath: 'myauth/myvalidate',
         updatePasswordPath: 'myauth/myupdate',
         resetPasswordPath: 'myauth/myreset',
+        changePasswordPath: 'myauth/mychange',
 
         loginField: 'username'
       });

@@ -29,7 +29,16 @@ export interface UpdatePasswordData {
 
 export interface ResetPasswordData {
   login:                  string;
+  redirectUrl:           string;
   userType?:              string;
+}
+
+export interface ChangePasswordData {
+  password:               string;
+  passwordConfirmation:   string;
+  uid?:                   string;
+  client?:                string;
+  accessToken?:           string;
 }
 
 // API Response Format
@@ -88,6 +97,7 @@ export interface AngularTokenOptions {
   registerAccountCallback?:   string;
 
   updatePasswordPath?:        string;
+  changePasswordPath?:        string;
 
   resetPasswordPath?:         string;
   resetPasswordCallback?:     string;
