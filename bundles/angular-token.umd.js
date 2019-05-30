@@ -704,7 +704,11 @@
                     uid: queryParams['uid']
                 };
                 if (this.checkAuthData(authData)) {
+                    console.log(authData + " is correct");
                     this.authData.next(authData);
+                }
+                else {
+                    console.log(authData + " is false");
                 }
             };
         /**
