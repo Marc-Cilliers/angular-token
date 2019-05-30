@@ -695,21 +695,24 @@
              * @return {?}
              */
             function (queryParams) {
-                /** @type {?} */
-                var authData = {
-                    accessToken: queryParams['token'] || queryParams['auth_token'],
-                    client: queryParams['client_id'],
-                    expiry: queryParams['expiry'],
-                    tokenType: 'Bearer',
-                    uid: queryParams['uid']
-                };
-                if (this.checkAuthData(authData)) {
-                    console.log(authData + " is correct");
-                    this.authData.next(authData);
-                }
-                else {
-                    console.log(authData + " is false");
-                }
+                var _this = this;
+                return new Promise(function (resolve, reject) {
+                    /** @type {?} */
+                    var authData = {
+                        accessToken: queryParams['token'] || queryParams['auth_token'],
+                        client: queryParams['client_id'],
+                        expiry: queryParams['expiry'],
+                        tokenType: 'Bearer',
+                        uid: queryParams['uid']
+                    };
+                    if (_this.checkAuthData(authData)) {
+                        _this.authData.next(authData);
+                        resolve(authData);
+                    }
+                    else {
+                        reject(authData);
+                    }
+                });
             };
         /**
          *

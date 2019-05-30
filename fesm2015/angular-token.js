@@ -525,21 +525,23 @@ class AngularTokenService {
      * @return {?}
      */
     getAuthDataFromParamsObj(queryParams) {
-        /** @type {?} */
-        const authData = {
-            accessToken: queryParams['token'] || queryParams['auth_token'],
-            client: queryParams['client_id'],
-            expiry: queryParams['expiry'],
-            tokenType: 'Bearer',
-            uid: queryParams['uid']
-        };
-        if (this.checkAuthData(authData)) {
-            console.log(authData + " is correct");
-            this.authData.next(authData);
-        }
-        else {
-            console.log(authData + " is false");
-        }
+        return new Promise((resolve, reject) => {
+            /** @type {?} */
+            const authData = {
+                accessToken: queryParams['token'] || queryParams['auth_token'],
+                client: queryParams['client_id'],
+                expiry: queryParams['expiry'],
+                tokenType: 'Bearer',
+                uid: queryParams['uid']
+            };
+            if (this.checkAuthData(authData)) {
+                this.authData.next(authData);
+                resolve(authData);
+            }
+            else {
+                reject(authData);
+            }
+        });
     }
     /**
      *

@@ -56,7 +56,7 @@ export declare class AngularTokenService implements CanActivate {
     private getAuthDataFromPostMessage;
     getAuthDataFromStorage(): void;
     private getAuthDataFromParams;
-    getAuthDataFromParamsObj(queryParams: any): void;
+    getAuthDataFromParamsObj(queryParams: any): Promise<any>;
     /**
      *
      * Set Auth Data
