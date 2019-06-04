@@ -9,6 +9,8 @@
 
 👋 This library has been renamed to **Angular-Token**! Please follow the [migration guide](https://angular-token.gitbook.io/docs/migrate-to-7).
 
+🤓 This library is a modification of the original. If you'd like to see the changes, please check below. The demo & docs still use the original codebase.
+
 ---
 
 ### Quick Links
@@ -22,9 +24,9 @@
 ## Install
 0. Set up a Rails with [Devise Token Auth](https://github.com/lynndylanhurley/devise_token_auth)
 
-1. Install Angular-Token via NPM with
+1. Install this modified version from its npm branch via NPM with
     ```bash
-    npm install angular-token
+    npm install git+https://github.com/Marc-Cilliers/angular-token.git#npm
     ```
 
 2. Import and add `AngularTokenModule` to your main module and call the 'forRoot' function with the config. Make sure you have `HttpClientModule` imported too.
@@ -82,6 +84,62 @@
         error =>    console.log(error)
     );
     ```
+    
+## ArbnModifications - Password Reset
+
+1. The original resetPassword method looked like this:
+    ```javascript
+    constructor(private tokenService: AngularTokenService) { }
+
+    this.tokenService.resetPassword({
+        login:    'example@example.org'
+    }).subscribe(
+        res =>      console.log(res),
+        error =>    console.log(error)
+    );
+    ```
+    
+   But because we're interfacing with **devise_token_auth**, we required it to have the extra 'redirect_url' parameter:
+   ```javascript
+   constructor(private tokenService: AngularTokenService) { }
+
+   this.tokenService.resetPassword({
+        login:       'example@example.org',
+        redirectUrl: 'https://localhost:1234/reset-password-example'
+   }).subscribe(
+        res =>      console.log(res),
+        error =>    console.log(error)
+   );
+   ```
+    
+2. On the route that gets redirected to, you'll need to pass some params back to the service:
+   ```javascript
+   ngOnInit() {
+      this.route.queryParamMap.subscribe(params => {
+          const paramsObj = {
+            token:          params.get('token') || params.get('auth_token'),
+            client_id:      params.get('client_id'),
+            expiry:         params.get('expiry'),
+            uid:            params.get('uid')
+          };
+      
+          this.tokenService.getAuthDataFromParamsObj(paramsObj)
+      }
+   }
+   ```
+   
+3. Once the user has filled in their form, use the changePassword method:
+   ```javascript
+   constructor(private tokenService: AngularTokenService) { }
+
+   this.tokenService.changePassword({
+        password:             'secretPassword',
+        passwordConfirmation: 'secretPassword'
+   }).subscribe(
+        res =>      console.log(res),
+        error =>    console.log(error)
+   );
+   ```
 
 ## Contributors
 
